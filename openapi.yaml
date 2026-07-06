@@ -1,0 +1,213 @@
+openapi: 3.0.3
+info:
+  title: 教案 Word 模板填充工具
+  version: 1.0.0
+  description: 使用固定的教案 Word 模板，根据 Dify 工作流传入的字段生成 docx 文件。
+servers:
+  - url: https://REPLACE_WITH_YOUR_VERCEL_DOMAIN.vercel.app
+    description: 部署到 Vercel 后，把这里替换成你的正式 HTTPS 域名。
+paths:
+  /api/health:
+    get:
+      operationId: checkLessonPlanDocxService
+      summary: 检查服务是否可用
+      description: 返回服务健康状态，用于在 Dify 导入前确认云函数已经部署成功。
+      responses:
+        "200":
+          description: 服务可用。
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    description: 是否可用。
+                  service:
+                    type: string
+                    description: 服务名称。
+                  template:
+                    type: string
+                    description: 当前使用的模板文件名。
+  /api/generate-lesson-plan-docx:
+    post:
+      operationId: generateLessonPlanDocx
+      summary: 生成教案 docx 文件
+      description: 根据传入的 23 个教案字段填充 Word 模板，并直接返回可下载的 docx 文件。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateDocxRequest"
+            example:
+              filename: 日语阅读（二）第1次课教案.docx
+              data:
+                lesson_no: "1"
+                hours: "2"
+                teaching_content: 日语阅读（二）第一单元 阅读策略与文本理解
+                key_points: 掌握课文核心词汇、段落主旨提取和文章结构分析方法。
+                difficult_points: 引导学生结合语境推断词义，并用日语概括段落要点。
+                time_1_content: 说明课程目标、学习要求和本次课评价方式。
+                time_1_minutes: 10分钟
+                time_2_content: 通过图片和问题导入阅读主题，激活学生背景知识。
+                time_2_minutes: 10分钟
+                time_3_content: 讲解关键词、句型和段落结构，组织学生完成精读任务。
+                time_3_minutes: 35分钟
+                time_4_content: 开展小组讨论，训练信息筛选、观点归纳和日语表达。
+                time_4_minutes: 25分钟
+                time_5_content: 总结阅读策略，布置课后复习重点。
+                time_5_minutes: 10分钟
+                org_course_intro: 回顾上节课内容，说明本节课教学目标、重点难点和教学方法。
+                org_lead_in: 教师展示主题材料并提出导入问题，学生进行简短回答。
+                org_content_1: 教师带领学生阅读文本，讲解重点词汇和长句理解方法。
+                org_content_2: 学生分组完成阅读任务，提炼段落主旨并进行汇报。
+                org_practice_interaction: 通过提问、讨论和即时反馈检查学生掌握情况。
+                org_summary: 教师总结本次课阅读策略和学习表现，提示课后复习方向。
+                homework_report: 完成课后阅读练习，并用日语写出 150 字左右内容摘要。
+                teacher_signature_date: "2026年7月6日"
+      responses:
+        "200":
+          description: 生成成功，返回 Word 文档二进制文件。
+          content:
+            application/vnd.openxmlformats-officedocument.wordprocessingml.document:
+              schema:
+                type: string
+                format: binary
+        "400":
+          description: 生成失败，返回错误原因。
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/generate-lesson-plan-docx-json:
+    post:
+      operationId: generateLessonPlanDocxBase64
+      summary: 生成教案 docx 的 base64 JSON
+      description: 备用接口。若当前 Dify 环境不能把二进制响应识别为文件，可调用本接口获取 base64 字符串。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateDocxRequest"
+      responses:
+        "200":
+          description: 生成成功，返回文件名、MIME 类型、文件大小和 base64 内容。
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  file_name:
+                    type: string
+                    description: 生成的 Word 文件名。
+                  mime_type:
+                    type: string
+                    description: Word 文档 MIME 类型。
+                  size:
+                    type: integer
+                    description: 文件大小，单位为字节。
+                  file_base64:
+                    type: string
+                    description: docx 文件的 base64 内容。
+        "400":
+          description: 生成失败，返回错误原因。
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  schemas:
+    GenerateDocxRequest:
+      type: object
+      required:
+        - data
+      properties:
+        filename:
+          type: string
+          description: 输出文件名，建议以 .docx 结尾；不填时默认使用“教案.docx”。
+        data:
+          $ref: "#/components/schemas/LessonPlanFields"
+    LessonPlanFields:
+      type: object
+      description: Word 模板中 23 个占位符对应的字段。未传或为空的字段会自动填入“待教师补充”。
+      properties:
+        lesson_no:
+          type: string
+          description: 第几次课，例如“1”。
+        hours:
+          type: string
+          description: 学时，例如“2”。
+        teaching_content:
+          type: string
+          description: 授课章节、主题或教学内容。
+        key_points:
+          type: string
+          description: 教学重点。
+        difficult_points:
+          type: string
+          description: 教学难点。
+        time_1_content:
+          type: string
+          description: 课堂时间分配第 1 项的教学内容，通常为课程介绍。
+        time_1_minutes:
+          type: string
+          description: 课堂时间分配第 1 项的时间。
+        time_2_content:
+          type: string
+          description: 课堂时间分配第 2 项的教学内容，通常为导入新课。
+        time_2_minutes:
+          type: string
+          description: 课堂时间分配第 2 项的时间。
+        time_3_content:
+          type: string
+          description: 课堂时间分配第 3 项的教学内容。
+        time_3_minutes:
+          type: string
+          description: 课堂时间分配第 3 项的时间。
+        time_4_content:
+          type: string
+          description: 课堂时间分配第 4 项的教学内容。
+        time_4_minutes:
+          type: string
+          description: 课堂时间分配第 4 项的时间。
+        time_5_content:
+          type: string
+          description: 课堂时间分配第 5 项的教学内容，通常为小结。
+        time_5_minutes:
+          type: string
+          description: 课堂时间分配第 5 项的时间。
+        org_course_intro:
+          type: string
+          description: 教学组织中的课程回顾、目标说明、重点难点和教学方法。
+        org_lead_in:
+          type: string
+          description: 教学组织中的导入活动、导入问题或情境说明。
+        org_content_1:
+          type: string
+          description: 教学组织中的第一部分主体教学内容。
+        org_content_2:
+          type: string
+          description: 教学组织中的第二部分主体教学内容。
+        org_practice_interaction:
+          type: string
+          description: 教学组织中的练习、讨论、展示、互动和反馈安排。
+        org_summary:
+          type: string
+          description: 教学组织中的课堂总结、评价反馈和学习提醒。
+        homework_report:
+          type: string
+          description: 思考题、课后作业或实验实训报告要求。
+        teacher_signature_date:
+          type: string
+          description: 教师签名日期，例如“2026年7月6日”。
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: 错误代码。
+        message:
+          type: string
+          description: 错误详情。

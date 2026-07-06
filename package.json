@@ -1,0 +1,16 @@
+{
+  "name": "lesson-plan-docx-openapi",
+  "version": "1.0.0",
+  "private": true,
+  "description": "OpenAPI-compatible Vercel function for filling a lesson-plan DOCX template.",
+  "scripts": {
+    "dev": "npx vercel dev",
+    "deploy": "npx vercel"
+  },
+  "dependencies": {
+    "jszip": "^3.10.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
