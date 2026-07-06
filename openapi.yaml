@@ -4,7 +4,7 @@ info:
   version: 1.0.0
   description: 使用固定的教案 Word 模板，根据 Dify 工作流传入的字段生成 docx 文件。
 servers:
-  - url: https://REPLACE_WITH_YOUR_VERCEL_DOMAIN.vercel.app
+  - url: https://word-blue.vercel.app
     description: 部署到 Vercel 后，把这里替换成你的正式 HTTPS 域名。
 paths:
   /api/health:
