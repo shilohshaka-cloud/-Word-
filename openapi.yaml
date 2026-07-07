@@ -117,6 +117,42 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /api/create-lesson-plan-docx-link-text:
+    post:
+      operationId: createLessonPlanDocxLinkText
+      summary: 生成教案 docx 下载链接文本
+      description: 根据传入的 filename 和 data 生成 Markdown 下载链接，适合 Dify 最终回答展示。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - data
+              properties:
+                filename:
+                  type: string
+                  description: 输出文件名，建议以 .docx 结尾。
+                data:
+                  type: string
+                  description: JSON 字符串，内容为 23 个 Word 模板字段组成的对象，或包含 filename/data 的完整 JSON 字符串。
+            example:
+              filename: 管理学原理-决策方法-教案.docx
+              data: '{"lesson_no":"1","hours":"2","teaching_content":"决策方法","key_points":"决策树与不确定型决策准则","difficult_points":"逆向求解与风险偏好判断","time_1_content":"课程导入","time_1_minutes":"10","time_2_content":"知识讲授","time_2_minutes":"20","time_3_content":"案例分析","time_3_minutes":"25","time_4_content":"练习互动","time_4_minutes":"25","time_5_content":"总结反馈","time_5_minutes":"10","org_course_intro":"教师说明本次课目标、重点难点和评价方式；学生明确学习任务并记录关键要求。","org_lead_in":"教师展示企业决策情境并提出问题；学生投票选择方案并说明理由；教师板书分歧点。","org_content_1":"教师演示决策树绘制和期望值计算；学生同步完成节点标注和计算；教师即时纠错。","org_content_2":"教师给出收益矩阵；学生分组计算不同准则并提交结论；教师组织对比分析。","org_practice_interaction":"学生独立完成练习题；同伴互评计算步骤；教师集中讲评典型错误。","org_summary":"教师用知识图谱总结方法选择逻辑；学生口头复述适用条件；教师布置课后任务。","homework_report":"完成案例分析报告。","teacher_signature_date":"2026年7月7日"}'
+      responses:
+        "200":
+          description: 生成成功，返回 Markdown 下载链接文本。
+          content:
+            text/plain:
+              schema:
+                type: string
+        "400":
+          description: 生成失败，返回错误原因。
+          content:
+            text/plain:
+              schema:
+                type: string
 components:
   schemas:
     GenerateDocxRequest:
