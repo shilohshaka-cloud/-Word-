@@ -10,13 +10,20 @@ module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept");
 
+  function sendText(statusCode, text) {
+    res.statusCode = statusCode;
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.end(text);
+  }
+
   if (req.method === "OPTIONS") {
-    res.status(204).end();
+    res.statusCode = 204;
+    res.end();
     return;
   }
 
   if (req.method !== "POST") {
-    res.status(405).type("text/plain").send("Method Not Allowed");
+    sendText(405, "Method Not Allowed");
     return;
   }
 
@@ -28,11 +35,8 @@ module.exports = async function handler(req, res) {
       req
     )}/api/download-lesson-plan-docx?t=${encodeURIComponent(token)}`;
 
-    res
-      .status(200)
-      .type("text/plain")
-      .send(`[下载 ${filename}](${downloadUrl})`);
+    sendText(200, `[下载 ${filename}](${downloadUrl})`);
   } catch (error) {
-    res.status(400).type("text/plain").send(`DOCX_LINK_FAILED: ${error.message}`);
+    sendText(400, `DOCX_LINK_FAILED: ${error.message}`);
   }
 };
