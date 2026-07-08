@@ -167,7 +167,7 @@ components:
           $ref: "#/components/schemas/LessonPlanFields"
     LessonPlanFields:
       type: object
-      description: Word 模板中 23 个占位符对应的字段。未传或为空的字段会自动填入“待教师补充”。
+      description: Word 模板字段。未传或为空的字段会按模板规则留空或自动兜底；teaching_resources 为兼容扩展字段，会插入到思考题前。
       properties:
         lesson_no:
           type: string
@@ -232,6 +232,9 @@ components:
         org_summary:
           type: string
           description: 教学组织中的课堂总结、评价反馈和学习提醒。
+        teaching_resources:
+          type: string
+          description: 教学资源、教学工具、线上资源或辅助材料；会插入到思考题及实验实训报告前。
         homework_report:
           type: string
           description: 思考题、课后作业或实验实训报告要求。
