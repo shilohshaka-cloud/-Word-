@@ -214,21 +214,6 @@ components:
         time_5_minutes:
           type: string
           description: 课堂时间分配第 5 项的时间。
-        time_allocations:
-          type: array
-          description: 动态课堂教学时间分配。传入后会按数组长度自动生成 Word 表格行，可支持 5 行、6 行或更多行。
-          items:
-            type: object
-            properties:
-              title:
-                type: string
-                description: 环节标题，例如课程介绍、导入新课、教学内容1、课堂练习/互动、小结。
-              content:
-                type: string
-                description: 该环节的教学内容正文。
-              minutes:
-                type: string
-                description: 该环节时间，建议只填数字分钟数。
         org_course_intro:
           type: string
           description: 教学组织中的课程回顾、目标说明、重点难点和教学方法。
